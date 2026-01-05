@@ -1,0 +1,66 @@
+<resources>
+    <string name="app_name">KeikkaDiili</string>
+
+    <!-- Common -->
+    <string name="loading">Ladataan…</string>
+    <string name="retry">Yritä uudelleen</string>
+    <string name="back">Takaisin</string>
+    <string name="cancel">Peruuta</string>
+    <string name="save">Tallenna</string>
+    <string name="delete">Poista</string>
+    <string name="info">Info</string>
+    <string name="error_generic">Jokin meni pieleen.</string>
+    <string name="error_network">Ei verkkoyhteyttä.</string>
+    <string name="error_api">Säätietojen haku epäonnistui.</string>
+    <string name="error_city_not_found">Kaupunkia ei löydy.</string>
+    <string name="error_db">Tallennus epäonnistui.</string>
+
+    <!-- List -->
+    <string name="gig_list_title">Keikat</string>
+    <string name="add_gig">Lisää keikka</string>
+    <string name="empty_gigs">Ei keikkoja vielä.</string>
+    <string name="score_value">Pisteet: %1$s</string>
+    <string name="no_forecast">Ei ennustetta</string>
+    <string name="forecast_not_available_yet">Ennuste saatavilla lähempänä ajankohtaa.</string>
+
+    <string name="delete_confirm_title">Poistetaanko keikka?</string>
+    <string name="delete_confirm_body">Tätä toimintoa ei voi perua.</string>
+
+    <!-- Add gig fields -->
+    <string name="field_title">Otsikko</string>
+    <string name="field_date_iso">Päivämäärä (YYYY-MM-DD)</string>
+    <string name="field_city">Kaupunki</string>
+    <string name="field_is_outdoor">Ulkona</string>
+    <string name="outdoor_yes">Kyllä</string>
+
+    <!-- Demo -->
+    <string name="add_demo_gig">Lisää demo-keikka (huomenna, Oulu)</string>
+    <string name="demo_gig_title">Demo-keikka</string>
+    <string name="demo_city_oulu">Oulu</string>
+
+    <!-- Detail -->
+    <string name="gig_detail_title">Keikan tiedot</string>
+    <string name="empty_detail">Keikkaa ei löytynyt.</string>
+    <string name="detail_meta">%1$s • %2$s</string>
+    <string name="weather_title">Sää</string>
+    <string name="temp_min_value">Min lämpötila: %1$.1f°C</string>
+    <string name="temp_max_value">Max lämpötila: %1$.1f°C</string>
+    <string name="precip_value">Sademäärä: %1$.1f mm</string>
+    <string name="wind_value">Tuuli (max): %1$.1f m/s</string>
+    <string name="recommendation_value">Suositus: %1$s</string>
+    <string name="score_breakdown_title">Pisteytys</string>
+    <string name="penalty_temp_value">Lämpötila: -%1$d</string>
+    <string name="penalty_precip_value">Sade: -%1$d</string>
+    <string name="penalty_wind_value">Tuuli: -%1$d</string>
+
+    <!-- Recommendations -->
+    <string name="recommendation_great">Hyvät olosuhteet</string>
+    <string name="recommendation_ok">Kohtalaiset olosuhteet</string>
+    <string name="recommendation_bad">Haastavat olosuhteet</string>
+
+    <!-- Info -->
+    <string name="info_title">Tietoa</string>
+    <string name="info_description">KeikkaDiili – Sääassistentti auttaa arvioimaan keikan sääriskiä.</string>
+    <string name="info_architecture">Arkkitehtuuri: Kotlin + Jetpack Compose + MVVM, Room (local) ja Retrofit (API).</string>
+    <string name="info_attribution">Säädata: Open-Meteo (Forecast + Geocoding).</string>
+</resources>
