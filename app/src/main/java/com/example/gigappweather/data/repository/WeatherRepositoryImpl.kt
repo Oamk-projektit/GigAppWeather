@@ -3,7 +3,6 @@ package com.example.gigappweather.data.repository
 import com.example.gigappweather.core.AppError
 import com.example.gigappweather.core.Outcome
 import com.example.gigappweather.data.remote.RetrofitProvider
-import com.example.gigappweather.data.remote.geocoding.GeocodingService
 import com.example.gigappweather.data.remote.weather.WeatherService
 import com.example.gigappweather.domain.model.DailyWeather
 import com.example.gigappweather.domain.model.WeatherSummary
@@ -13,23 +12,16 @@ import retrofit2.HttpException
 import java.io.IOException
 
 class WeatherRepositoryImpl(
-    private val geocodingService: GeocodingService = RetrofitProvider
-        .create(GeocodingService.BASE_URL)
-        .create(GeocodingService::class.java),
     private val weatherService: WeatherService = RetrofitProvider
         .create(WeatherService.BASE_URL)
         .create(WeatherService::class.java),
 ) : WeatherRepository {
 
-    override suspend fun getDailyForecast(cityName: String): Outcome<WeatherSummary> {
+    override suspend fun getDailyForecast(latitude: Double, longitude: Double): Outcome<WeatherSummary> {
         return try {
-            val geoResponse = geocodingService.searchCity(name = cityName, count = 1)
-            val first = geoResponse.results.firstOrNull()
-                ?: return Outcome.Error(AppError.CityNotFound)
-
             val forecastResponse = weatherService.getDailyForecast(
-                latitude = first.latitude,
-                longitude = first.longitude,
+                latitude = latitude,
+                longitude = longitude,
             )
 
             val daily = forecastResponse.daily
@@ -59,9 +51,8 @@ class WeatherRepositoryImpl(
 
             Outcome.Success(
                 WeatherSummary(
-                    cityName = first.name ?: cityName,
-                    latitude = first.latitude,
-                    longitude = first.longitude,
+                    latitude = latitude,
+                    longitude = longitude,
                     daily = days,
                 )
             )

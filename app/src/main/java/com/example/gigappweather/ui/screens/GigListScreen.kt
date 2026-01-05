@@ -14,8 +14,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -23,6 +24,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -37,10 +40,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.gigappweather.R
 import com.example.gigappweather.core.UiState
+import com.example.gigappweather.domain.model.FinnishCities
 import com.example.gigappweather.ui.components.ErrorView
 import com.example.gigappweather.ui.components.GigCard
 import com.example.gigappweather.ui.components.LoadingView
-import com.example.gigappweather.ui.model.GigWeatherStatus
 import com.example.gigappweather.ui.viewmodel.AddGigViewModel
 import com.example.gigappweather.ui.viewmodel.GigListViewModel
 import kotlinx.coroutines.launch
@@ -90,7 +93,7 @@ fun GigListScreen(
                 .padding(padding),
         ) {
             val demoTitle = stringResource(id = R.string.demo_gig_title)
-            val demoCity = stringResource(id = R.string.demo_city_oulu)
+            val demoCityId = "oulu"
 
             RowActions(
                 onAdd = { showAddDialog = true },
@@ -99,7 +102,7 @@ fun GigListScreen(
                     addGigViewModel.addGig(
                         title = demoTitle,
                         dateIso = demoDate,
-                        city = demoCity,
+                        cityId = demoCityId,
                         isOutdoor = true,
                         createdAt = System.currentTimeMillis(),
                     )
@@ -115,10 +118,6 @@ fun GigListScreen(
                     onRetry = onRetry,
                 )
                 is UiState.Success -> {
-                    val anyWeatherLoading = s.data.any { it.weatherStatus == GigWeatherStatus.Loading }
-                    if (anyWeatherLoading) {
-                        LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-                    }
                     LazyColumn(
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -128,6 +127,7 @@ fun GigListScreen(
                                 item = item,
                                 onClick = { onOpenDetail(item.id) },
                                 onDelete = { deleteId = item.id },
+                                onRetryWeather = { viewModel.retryWeatherForCity(item.cityId) },
                             )
                         }
                     }
@@ -139,11 +139,11 @@ fun GigListScreen(
             AddGigDialog(
                 addState = addState,
                 onDismiss = { showAddDialog = false },
-                onSave = { title, dateIso, city, isOutdoor ->
+                onSave = { title, dateIso, cityId, isOutdoor ->
                     addGigViewModel.addGig(
                         title = title,
                         dateIso = dateIso,
-                        city = city,
+                        cityId = cityId,
                         isOutdoor = isOutdoor,
                         createdAt = System.currentTimeMillis(),
                     )
@@ -202,18 +202,26 @@ private fun EmptyState(modifier: Modifier = Modifier) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AddGigDialog(
     addState: UiState<Long>,
     onDismiss: () -> Unit,
-    onSave: (title: String, dateIso: String, city: String, isOutdoor: Boolean) -> Unit,
+    onSave: (title: String, dateIso: String, cityId: String, isOutdoor: Boolean) -> Unit,
 ) {
     var title by remember { mutableStateOf("") }
     var dateIso by remember { mutableStateOf("") }
-    var city by remember { mutableStateOf("") }
+    var cityId by remember { mutableStateOf("") }
     var isOutdoor by remember { mutableStateOf(true) }
 
-    val canSave = title.isNotBlank() && dateIso.isNotBlank() && city.isNotBlank()
+    val canSave = title.isNotBlank() && dateIso.isNotBlank() && cityId.isNotBlank()
+
+    val cities = FinnishCities.all
+    var cityExpanded by remember { mutableStateOf(false) }
+    val selectedCityName = cities
+        .firstOrNull { it.id == cityId }
+        ?.let { stringResource(id = it.displayNameRes) }
+        .orEmpty()
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -234,12 +242,37 @@ private fun AddGigDialog(
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = city,
-                    onValueChange = { city = it },
-                    label = { Text(text = stringResource(id = R.string.field_city)) },
-                    modifier = Modifier.fillMaxWidth(),
-                )
+
+                ExposedDropdownMenuBox(
+                    expanded = cityExpanded,
+                    onExpandedChange = { cityExpanded = !cityExpanded },
+                ) {
+                    OutlinedTextField(
+                        value = selectedCityName,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text(text = stringResource(id = R.string.field_city_select)) },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = cityExpanded) },
+                        modifier = Modifier
+                            .menuAnchor()
+                            .fillMaxWidth(),
+                    )
+                    DropdownMenu(
+                        expanded = cityExpanded,
+                        onDismissRequest = { cityExpanded = false },
+                    ) {
+                        cities.forEach { city ->
+                            DropdownMenuItem(
+                                text = { Text(text = stringResource(id = city.displayNameRes)) },
+                                onClick = {
+                                    cityId = city.id
+                                    cityExpanded = false
+                                },
+                                contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                            )
+                        }
+                    }
+                }
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Column {
@@ -262,7 +295,7 @@ private fun AddGigDialog(
         },
         confirmButton = {
             Button(
-                onClick = { onSave(title, dateIso, city, isOutdoor) },
+                onClick = { onSave(title, dateIso, cityId, isOutdoor) },
                 enabled = canSave && addState !is UiState.Loading,
             ) {
                 Text(text = stringResource(id = R.string.save))

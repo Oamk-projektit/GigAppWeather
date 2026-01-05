@@ -1,7 +1,6 @@
 package com.example.gigappweather.domain.model
 
 data class WeatherSummary(
-    val cityName: String,
     val latitude: Double,
     val longitude: Double,
     val daily: List<DailyWeather>,

@@ -18,6 +18,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.gigappweather.R
 import com.example.gigappweather.core.UiState
+import com.example.gigappweather.domain.logic.WeatherScoring
+import com.example.gigappweather.domain.model.FinnishCities
 import com.example.gigappweather.ui.components.ErrorView
 import com.example.gigappweather.ui.components.LoadingView
 import com.example.gigappweather.ui.model.GigDetailUiModel
@@ -80,7 +82,8 @@ private fun DetailContent(
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text(text = item.title, style = MaterialTheme.typography.titleLarge)
-        Text(text = stringResource(id = R.string.detail_meta, item.dateIso, item.city))
+        val cityName = FinnishCities.byId(item.cityId)?.let { stringResource(id = it.displayNameRes) } ?: item.cityId
+        Text(text = stringResource(id = R.string.detail_meta, item.dateIso, cityName))
 
         val weather = item.weather
         if (weather == null) {
@@ -98,7 +101,7 @@ private fun DetailContent(
         val breakdown = item.scoreBreakdown
         if (breakdown != null) {
             Text(text = stringResource(id = R.string.score_value, breakdown.score.toString()))
-            val recRes = recommendationTextRes(breakdown.score)
+            val recRes = WeatherScoring.recommendationTextRes(breakdown.score)
             Text(text = stringResource(id = R.string.recommendation_value, stringResource(id = recRes)))
 
             Text(text = stringResource(id = R.string.score_breakdown_title), style = MaterialTheme.typography.titleMedium)
@@ -106,13 +109,5 @@ private fun DetailContent(
             Text(text = stringResource(id = R.string.penalty_precip_value, breakdown.precipitationPenalty))
             Text(text = stringResource(id = R.string.penalty_wind_value, breakdown.windPenalty))
         }
-    }
-}
-
-private fun recommendationTextRes(score: Int): Int {
-    return when {
-        score >= 80 -> R.string.recommendation_great
-        score >= 50 -> R.string.recommendation_ok
-        else -> R.string.recommendation_bad
     }
 }

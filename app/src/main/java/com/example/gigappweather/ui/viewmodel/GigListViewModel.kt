@@ -8,6 +8,7 @@ import com.example.gigappweather.core.Outcome
 import com.example.gigappweather.core.UiState
 import com.example.gigappweather.domain.logic.WeatherScoring
 import com.example.gigappweather.domain.model.Gig
+import com.example.gigappweather.domain.model.FinnishCities
 import com.example.gigappweather.domain.repository.GigRepository
 import com.example.gigappweather.domain.repository.WeatherRepository
 import com.example.gigappweather.ui.model.GigCardUiModel
@@ -28,7 +29,7 @@ class GigListViewModel(
 ) : ViewModel() {
 
     private val cityCache = mutableMapOf<String, Outcome<com.example.gigappweather.domain.model.WeatherSummary>>()
-    private val inFlightCities = mutableSetOf<String>()
+    private val inFlightCityIds = mutableSetOf<String>()
     private var latestGigs: List<Gig> = emptyList()
 
     private val _state = MutableStateFlow<UiState<List<GigCardUiModel>>>(UiState.Loading)
@@ -56,41 +57,50 @@ class GigListViewModel(
 
     private fun ensureWeatherFetched(gigs: List<Gig>) {
         gigs
-            .map { it.city.trim() }
-            .filter { it.isNotBlank() }
+            .map { it.cityId.trim() }
+            .filter { it.isNotBlank() && FinnishCities.byId(it) != null }
             .distinct()
-            .forEach { city ->
-                if (cityCache.containsKey(city) || inFlightCities.contains(city)) return@forEach
-                inFlightCities.add(city)
+            .forEach { cityId ->
+                if (cityCache.containsKey(cityId) || inFlightCityIds.contains(cityId)) return@forEach
+                inFlightCityIds.add(cityId)
 
                 viewModelScope.launch(ioDispatcher) {
-                    val outcome = weatherRepository.getDailyForecast(city)
+                    val city = FinnishCities.byId(cityId)
+                    if (city == null) {
+                        cityCache[cityId] = Outcome.Error(AppError.CityNotFound)
+                        inFlightCityIds.remove(cityId)
+                        return@launch
+                    }
+
+                    val outcome = weatherRepository.getDailyForecast(
+                        latitude = city.latitude,
+                        longitude = city.longitude,
+                    )
 
                     when (outcome) {
                         is Outcome.Success -> {
-                            cityCache[city] = outcome
+                            cityCache[cityId] = outcome
                         }
                         is Outcome.Error -> {
                             when (outcome.error) {
                                 AppError.CityNotFound,
                                 AppError.NoForecastData,
                                 AppError.NotFound,
-                                -> cityCache[city] = outcome
+                                -> cityCache[cityId] = outcome
 
                                 AppError.Network,
                                 is AppError.Http,
                                 AppError.Serialization,
                                 is AppError.Unknown,
                                 -> {
-                                    _state.value = UiState.Error(mapErrorToMessageRes(outcome.error))
-                                    inFlightCities.remove(city)
-                                    return@launch
+                                    // Keep error per-card; allow user to retry.
+                                    cityCache[cityId] = outcome
                                 }
                             }
                         }
                     }
 
-                    inFlightCities.remove(city)
+                    inFlightCityIds.remove(cityId)
 
                     val current = latestGigs
                     if (current.isNotEmpty() && _state.value !is UiState.Error) {
@@ -102,8 +112,8 @@ class GigListViewModel(
 
     private fun mapToUi(gigs: List<Gig>): List<GigCardUiModel> {
         return gigs.map { gig ->
-            val city = gig.city.trim()
-            val cached = cityCache[city]
+            val cityId = gig.cityId.trim()
+            val cached = cityCache[cityId]
 
             when (cached) {
                 null -> {
@@ -111,7 +121,7 @@ class GigListViewModel(
                         id = gig.id,
                         title = gig.title,
                         dateIso = gig.dateIso,
-                        city = gig.city,
+                        cityId = gig.cityId,
                         score = null,
                         summary = null,
                         weatherStatus = GigWeatherStatus.Loading,
@@ -125,14 +135,18 @@ class GigListViewModel(
                         AppError.NotFound,
                         -> GigWeatherStatus.ForecastNotAvailableYet
 
-                        else -> GigWeatherStatus.ForecastNotAvailableYet
+                        AppError.Network,
+                        is AppError.Http,
+                        AppError.Serialization,
+                        is AppError.Unknown,
+                        -> GigWeatherStatus.Error(mapErrorToMessageRes(cached.error))
                     }
 
                     GigCardUiModel(
                         id = gig.id,
                         title = gig.title,
                         dateIso = gig.dateIso,
-                        city = gig.city,
+                        cityId = gig.cityId,
                         score = null,
                         summary = null,
                         weatherStatus = status,
@@ -146,7 +160,7 @@ class GigListViewModel(
                             id = gig.id,
                             title = gig.title,
                             dateIso = gig.dateIso,
-                            city = gig.city,
+                            cityId = gig.cityId,
                             score = null,
                             summary = null,
                             weatherStatus = GigWeatherStatus.ForecastNotAvailableYet,
@@ -169,7 +183,7 @@ class GigListViewModel(
                             id = gig.id,
                             title = gig.title,
                             dateIso = gig.dateIso,
-                            city = gig.city,
+                            cityId = gig.cityId,
                             score = score,
                             summary = summary,
                             weatherStatus = GigWeatherStatus.Available,
@@ -190,6 +204,16 @@ class GigListViewModel(
             AppError.NoForecastData,
             AppError.NotFound,
             -> R.string.no_forecast
+        }
+    }
+
+    fun retryWeatherForCity(cityId: String) {
+        val id = cityId.trim()
+        if (id.isBlank()) return
+        cityCache.remove(id)
+        ensureWeatherFetched(latestGigs)
+        if (latestGigs.isNotEmpty() && _state.value is UiState.Success) {
+            _state.value = UiState.Success(mapToUi(latestGigs))
         }
     }
 

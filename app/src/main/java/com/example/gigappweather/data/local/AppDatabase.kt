@@ -7,7 +7,7 @@ import com.example.gigappweather.data.local.entity.GigEntity
 
 @Database(
     entities = [GigEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = true,
 )
 abstract class AppDatabase : RoomDatabase() {

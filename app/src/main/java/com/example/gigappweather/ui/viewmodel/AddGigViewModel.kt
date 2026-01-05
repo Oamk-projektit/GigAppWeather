@@ -24,7 +24,7 @@ class AddGigViewModel(
     fun addGig(
         title: String,
         dateIso: String,
-        city: String,
+        cityId: String,
         isOutdoor: Boolean,
         createdAt: Long,
     ) {
@@ -35,7 +35,7 @@ class AddGigViewModel(
                     Gig(
                         title = title,
                         dateIso = dateIso,
-                        city = city,
+                        cityId = cityId,
                         isOutdoor = isOutdoor,
                         createdAt = createdAt,
                     )

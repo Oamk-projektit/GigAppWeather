@@ -7,6 +7,7 @@ import com.example.gigappweather.core.AppError
 import com.example.gigappweather.core.Outcome
 import com.example.gigappweather.core.UiState
 import com.example.gigappweather.domain.logic.WeatherScoring
+import com.example.gigappweather.domain.model.FinnishCities
 import com.example.gigappweather.domain.repository.GigRepository
 import com.example.gigappweather.domain.repository.WeatherRepository
 import com.example.gigappweather.ui.model.GigDetailUiModel
@@ -44,7 +45,15 @@ class GigDetailViewModel(
 
                 _state.value = UiState.Loading
 
-                val weatherOutcome = weatherRepository.getDailyForecast(gig.city)
+                val city = FinnishCities.byId(gig.cityId)
+                val weatherOutcome = if (city == null) {
+                    Outcome.Error(AppError.CityNotFound)
+                } else {
+                    weatherRepository.getDailyForecast(
+                        latitude = city.latitude,
+                        longitude = city.longitude,
+                    )
+                }
 
                 val weatherDay = when (weatherOutcome) {
                     is Outcome.Success -> weatherOutcome.data.daily.firstOrNull { it.dateIso == gig.dateIso }
@@ -100,7 +109,7 @@ class GigDetailViewModel(
                         id = gig.id,
                         title = gig.title,
                         dateIso = gig.dateIso,
-                        city = gig.city,
+                        cityId = gig.cityId,
                         isOutdoor = gig.isOutdoor,
                         createdAt = gig.createdAt,
                         weather = weatherSummary,

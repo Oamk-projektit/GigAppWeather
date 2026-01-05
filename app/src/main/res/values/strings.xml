@@ -30,6 +30,7 @@
     <string name="field_title">Otsikko</string>
     <string name="field_date_iso">Päivämäärä (YYYY-MM-DD)</string>
     <string name="field_city">Kaupunki</string>
+    <string name="field_city_select">Valitse kaupunki</string>
     <string name="field_is_outdoor">Ulkona</string>
     <string name="outdoor_yes">Kyllä</string>
 
@@ -43,6 +44,11 @@
     <string name="empty_detail">Keikkaa ei löytynyt.</string>
     <string name="detail_meta">%1$s • %2$s</string>
     <string name="weather_title">Sää</string>
+    <string name="weather_on_gig_day">Sää keikkapäivänä</string>
+    <string name="label_max_min">Max/Min</string>
+    <string name="label_precip">Sade</string>
+    <string name="label_wind">Tuuli</string>
+    <string name="fetching_weather">Haetaan säätä…</string>
     <string name="temp_min_value">Min lämpötila: %1$.1f°C</string>
     <string name="temp_max_value">Max lämpötila: %1$.1f°C</string>
     <string name="precip_value">Sademäärä: %1$.1f mm</string>
@@ -63,4 +69,21 @@
     <string name="info_description">KeikkaDiili – Sääassistentti auttaa arvioimaan keikan sääriskiä.</string>
     <string name="info_architecture">Arkkitehtuuri: Kotlin + Jetpack Compose + MVVM, Room (local) ja Retrofit (API).</string>
     <string name="info_attribution">Säädata: Open-Meteo (Forecast + Geocoding).</string>
+
+    <!-- Cities -->
+    <string name="city_helsinki">Helsinki</string>
+    <string name="city_espoo">Espoo</string>
+    <string name="city_vantaa">Vantaa</string>
+    <string name="city_tampere">Tampere</string>
+    <string name="city_turku">Turku</string>
+    <string name="city_oulu">Oulu</string>
+    <string name="city_jyvaskyla">Jyväskylä</string>
+    <string name="city_lahti">Lahti</string>
+    <string name="city_kuopio">Kuopio</string>
+    <string name="city_pori">Pori</string>
+    <string name="city_vaasa">Vaasa</string>
+    <string name="city_lappeenranta">Lappeenranta</string>
+    <string name="city_joensuu">Joensuu</string>
+    <string name="city_seinajoki">Seinäjoki</string>
+    <string name="city_rovaniemi">Rovaniemi</string>
 </resources>

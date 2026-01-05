@@ -4,7 +4,7 @@ data class GigCardUiModel(
     val id: Long,
     val title: String,
     val dateIso: String,
-    val city: String,
+    val cityId: String,
     val score: Int?,
     val summary: WeatherDaySummaryUiModel?,
     val weatherStatus: GigWeatherStatus
@@ -15,6 +15,7 @@ sealed interface GigWeatherStatus {
     data object Available : GigWeatherStatus
     data object CityNotFound : GigWeatherStatus
     data object ForecastNotAvailableYet : GigWeatherStatus
+    data class Error(val messageRes: Int) : GigWeatherStatus
 }
 
 data class WeatherDaySummaryUiModel(

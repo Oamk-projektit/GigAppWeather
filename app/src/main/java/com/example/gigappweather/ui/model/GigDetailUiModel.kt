@@ -6,7 +6,7 @@ data class GigDetailUiModel(
     val id: Long,
     val title: String,
     val dateIso: String,
-    val city: String,
+    val cityId: String,
     val isOutdoor: Boolean,
     val createdAt: Long,
     val weather: WeatherDaySummaryUiModel?,

@@ -5,7 +5,8 @@ data class Gig(
     val title: String,
     /** ISO-8601 date, e.g. 2026-01-05 */
     val dateIso: String,
-    val city: String,
+    /** FinnishCities id, e.g. "oulu" */
+    val cityId: String,
     val isOutdoor: Boolean,
     /** Epoch millis */
     val createdAt: Long,

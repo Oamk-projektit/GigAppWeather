@@ -7,7 +7,7 @@ fun GigEntity.toDomain(): Gig = Gig(
     id = id,
     title = title,
     dateIso = dateIso,
-    city = city,
+    cityId = cityId,
     isOutdoor = isOutdoor,
     createdAt = createdAt,
 )
@@ -16,7 +16,7 @@ fun Gig.toEntity(): GigEntity = GigEntity(
     id = id,
     title = title,
     dateIso = dateIso,
-    city = city,
+    cityId = cityId,
     isOutdoor = isOutdoor,
     createdAt = createdAt,
 )
