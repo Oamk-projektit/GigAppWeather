@@ -6,6 +6,7 @@
     <string name="retry">Yritä uudelleen</string>
     <string name="back">Takaisin</string>
     <string name="cancel">Peruuta</string>
+    <string name="ok">OK</string>
     <string name="save">Tallenna</string>
     <string name="delete">Poista</string>
     <string name="info">Info</string>
@@ -29,6 +30,7 @@
     <!-- Add gig fields -->
     <string name="field_title">Otsikko</string>
     <string name="field_date_iso">Päivämäärä (YYYY-MM-DD)</string>
+    <string name="pick_date">Valitse päivämäärä</string>
     <string name="field_city">Kaupunki</string>
     <string name="field_city_select">Valitse kaupunki</string>
     <string name="field_is_outdoor">Ulkona</string>

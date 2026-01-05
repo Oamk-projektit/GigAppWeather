@@ -16,7 +16,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -38,6 +42,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CalendarMonth
 import com.example.gigappweather.R
 import com.example.gigappweather.core.UiState
 import com.example.gigappweather.domain.model.FinnishCities
@@ -48,6 +54,7 @@ import com.example.gigappweather.ui.viewmodel.AddGigViewModel
 import com.example.gigappweather.ui.viewmodel.GigListViewModel
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Calendar
 import java.util.Locale
 
@@ -235,10 +242,10 @@ private fun AddGigDialog(
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = dateIso,
-                    onValueChange = { dateIso = it },
-                    label = { Text(text = stringResource(id = R.string.field_date_iso)) },
+                DatePickerField(
+                    label = stringResource(id = R.string.field_date_iso),
+                    selectedDateIso = dateIso,
+                    onDateSelectedIso = { dateIso = it },
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -307,6 +314,66 @@ private fun AddGigDialog(
             }
         },
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DatePickerField(
+    label: String,
+    selectedDateIso: String,
+    onDateSelectedIso: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var open by remember { mutableStateOf(false) }
+
+    val datePickerState = androidx.compose.material3.rememberDatePickerState()
+
+    OutlinedTextField(
+        value = selectedDateIso,
+        onValueChange = { /* read-only */ },
+        modifier = modifier,
+        readOnly = true,
+        label = { Text(label) },
+        trailingIcon = {
+            IconButton(onClick = { open = true }) {
+                Icon(
+                    imageVector = Icons.Outlined.CalendarMonth,
+                    contentDescription = stringResource(id = R.string.pick_date),
+                )
+            }
+        },
+    )
+
+    if (open) {
+        DatePickerDialog(
+            onDismissRequest = { open = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val millis = datePickerState.selectedDateMillis
+                        if (millis != null) {
+                            onDateSelectedIso(millisToIsoDate(millis))
+                        }
+                        open = false
+                    },
+                ) {
+                    Text(text = stringResource(id = R.string.ok))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { open = false }) {
+                    Text(text = stringResource(id = R.string.cancel))
+                }
+            },
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
+}
+
+private fun millisToIsoDate(millis: Long): String {
+    val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+    return sdf.format(Date(millis))
 }
 
 @Composable
