@@ -16,6 +16,13 @@
     <string name="error_city_not_found">Kaupunkia ei löydy.</string>
     <string name="error_db">Tallennus epäonnistui.</string>
 
+    <!-- Offline demo -->
+    <string name="offline_banner_message">Ei internet-yhteyttä</string>
+    <string name="offline_badge_offline">Offline</string>
+    <string name="offline_badge_demo">Demo</string>
+    <string name="simulate_offline">Simuloi offline (demo)</string>
+    <string name="simulate_offline_hint">Pakottaa sovelluksen offline-tilaan arviointia varten.</string>
+
     <!-- List -->
     <string name="gig_list_title">Keikat</string>
     <string name="add_gig">Lisää keikka</string>

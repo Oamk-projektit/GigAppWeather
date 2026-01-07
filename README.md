@@ -10,6 +10,33 @@ KeikkaDiili – Sääassistentti on Android-sovellus (Kotlin + Jetpack Compose),
 
 Ei API-avaimia.
 
+## Offline-tilan demo (arvioijalle)
+
+Sovelluksessa on näkyvä offline-banneri ja toiminnallinen muutos (säätietojen “Retry” estyy offline-tilassa).
+
+### Tapa A: Oikea offline emulaattorissa (ADB)
+
+Katkaise verkko emulaattorilta:
+
+```bash
+adb devices
+adb shell svc wifi disable
+adb shell svc data disable
+```
+
+Palauta verkko:
+
+```bash
+adb shell svc wifi enable
+adb shell svc data enable
+```
+
+### Tapa B: In-app “Simuloi offline” (varma demo)
+
+- Avaa **Info**-näkymä
+- Kytke **“Simuloi offline (demo)”** päälle
+- Näet offline-bannerin yläpalkin alla ja sääkorttien **Retry** estyy
+
 ## Arkkitehtuuri
 
 - **Data (remote)**: Retrofit + OkHttp + Kotlin Serialization (Open-Meteo Geocoding + Forecast)

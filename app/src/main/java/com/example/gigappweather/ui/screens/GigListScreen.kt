@@ -30,6 +30,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -50,7 +52,9 @@ import com.example.gigappweather.domain.model.FinnishCities
 import com.example.gigappweather.ui.components.ErrorView
 import com.example.gigappweather.ui.components.GigCard
 import com.example.gigappweather.ui.components.LoadingView
+import com.example.gigappweather.ui.components.OfflineBanner
 import com.example.gigappweather.ui.viewmodel.AddGigViewModel
+import com.example.gigappweather.ui.viewmodel.AppViewModel
 import com.example.gigappweather.ui.viewmodel.GigListViewModel
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -63,6 +67,7 @@ import java.util.Locale
 fun GigListScreen(
     viewModel: GigListViewModel,
     addGigViewModel: AddGigViewModel,
+    appViewModel: AppViewModel,
     onOpenDetail: (Long) -> Unit,
     onOpenInfo: () -> Unit,
     onRetry: () -> Unit,
@@ -70,7 +75,12 @@ fun GigListScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val addState by addGigViewModel.state.collectAsState()
+    val isOnline by appViewModel.isOnline.collectAsState()
+    val simulatedOffline by appViewModel.simulatedOffline.collectAsState()
     val scope = rememberCoroutineScope()
+
+    val snackbarHostState = remember { SnackbarHostState() }
+    val networkErrorMessage = stringResource(id = R.string.error_network)
 
     var showAddDialog by remember { mutableStateOf(false) }
     var deleteId by remember { mutableStateOf<Long?>(null) }
@@ -83,15 +93,21 @@ fun GigListScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(text = stringResource(id = R.string.gig_list_title)) },
-                actions = {
-                    TextButton(onClick = onOpenInfo) {
-                        Text(text = stringResource(id = R.string.info))
-                    }
-                },
-            )
+            Column {
+                TopAppBar(
+                    title = { Text(text = stringResource(id = R.string.gig_list_title)) },
+                    actions = {
+                        TextButton(onClick = onOpenInfo) {
+                            Text(text = stringResource(id = R.string.info))
+                        }
+                    },
+                )
+                if (!isOnline) {
+                    OfflineBanner(isSimulated = simulatedOffline)
+                }
+            }
         },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         modifier = modifier,
     ) { padding ->
         Column(
@@ -134,7 +150,18 @@ fun GigListScreen(
                                 item = item,
                                 onClick = { onOpenDetail(item.id) },
                                 onDelete = { deleteId = item.id },
-                                onRetryWeather = { viewModel.retryWeatherForCity(item.cityId) },
+                                isOnline = isOnline,
+                                onRetryWeather = {
+                                    if (isOnline) {
+                                        viewModel.retryWeatherForCity(item.cityId)
+                                    } else {
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar(
+                                                message = networkErrorMessage,
+                                            )
+                                        }
+                                    }
+                                },
                             )
                         }
                     }

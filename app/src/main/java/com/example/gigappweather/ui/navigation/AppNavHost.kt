@@ -21,6 +21,7 @@ import com.example.gigappweather.ui.screens.GigDetailScreen
 import com.example.gigappweather.ui.screens.GigListScreen
 import com.example.gigappweather.ui.screens.InfoScreen
 import com.example.gigappweather.ui.viewmodel.AddGigViewModel
+import com.example.gigappweather.ui.viewmodel.AppViewModel
 import com.example.gigappweather.ui.viewmodel.GigDetailViewModel
 import com.example.gigappweather.ui.viewmodel.GigListViewModel
 
@@ -28,6 +29,10 @@ import com.example.gigappweather.ui.viewmodel.GigListViewModel
 fun AppNavHost(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
     val context = LocalContext.current.applicationContext
+
+    val appViewModel: AppViewModel = viewModel(
+        factory = AppViewModelFactory(context),
+    )
 
     var listVmNonce by remember { mutableIntStateOf(0) }
 
@@ -57,6 +62,7 @@ fun AppNavHost(modifier: Modifier = Modifier) {
             GigListScreen(
                 viewModel = listViewModel,
                 addGigViewModel = addViewModel,
+                appViewModel = appViewModel,
                 onOpenDetail = { gigId -> navController.navigate(NavRoutes.detail(gigId)) },
                 onOpenInfo = { navController.navigate(NavRoutes.INFO) },
                 onRetry = { listVmNonce += 1 },
@@ -84,13 +90,17 @@ fun AppNavHost(modifier: Modifier = Modifier) {
 
             GigDetailScreen(
                 viewModel = detailViewModel,
+                appViewModel = appViewModel,
                 onBack = { navController.popBackStack() },
                 onRetry = { detailVmNonce += 1 },
             )
         }
 
         composable(NavRoutes.INFO) {
-            InfoScreen(onBack = { navController.popBackStack() })
+            InfoScreen(
+                appViewModel = appViewModel,
+                onBack = { navController.popBackStack() },
+            )
         }
     }
 }

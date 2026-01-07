@@ -34,6 +34,7 @@ fun GigCard(
     item: GigCardUiModel,
     onClick: () -> Unit,
     onDelete: () -> Unit,
+    isOnline: Boolean,
     onRetryWeather: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -93,8 +94,11 @@ fun GigCard(
                                     style = MaterialTheme.typography.bodyMedium,
                                     modifier = Modifier.weight(1f),
                                 )
-                                TextButton(onClick = onRetryWeather) {
-                                    Text(text = stringResource(id = R.string.retry))
+                                TextButton(
+                                    onClick = onRetryWeather,
+                                    enabled = isOnline,
+                                ) {
+                                    Text(text = stringResource(id = if (isOnline) R.string.retry else R.string.offline_badge_offline))
                                 }
                             }
                         }

@@ -22,27 +22,37 @@ import com.example.gigappweather.domain.logic.WeatherScoring
 import com.example.gigappweather.domain.model.FinnishCities
 import com.example.gigappweather.ui.components.ErrorView
 import com.example.gigappweather.ui.components.LoadingView
+import com.example.gigappweather.ui.components.OfflineBanner
 import com.example.gigappweather.ui.model.GigDetailUiModel
+import com.example.gigappweather.ui.viewmodel.AppViewModel
 import com.example.gigappweather.ui.viewmodel.GigDetailViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GigDetailScreen(
     viewModel: GigDetailViewModel,
+    appViewModel: AppViewModel,
     onBack: () -> Unit,
     onRetry: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val state by viewModel.state.collectAsState()
+    val isOnline by appViewModel.isOnline.collectAsState()
+    val simulatedOffline by appViewModel.simulatedOffline.collectAsState()
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(text = stringResource(id = R.string.gig_detail_title)) },
-                navigationIcon = {
-                    TextButton(onClick = onBack) { Text(text = stringResource(id = R.string.back)) }
-                },
-            )
+            Column {
+                TopAppBar(
+                    title = { Text(text = stringResource(id = R.string.gig_detail_title)) },
+                    navigationIcon = {
+                        TextButton(onClick = onBack) { Text(text = stringResource(id = R.string.back)) }
+                    },
+                )
+                if (!isOnline) {
+                    OfflineBanner(isSimulated = simulatedOffline)
+                }
+            }
         },
         modifier = modifier,
     ) { padding ->
