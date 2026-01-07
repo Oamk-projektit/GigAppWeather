@@ -21,7 +21,7 @@
     <string name="offline_badge_offline">Offline</string>
     <string name="offline_badge_demo">Demo</string>
     <string name="simulate_offline">Simuloi offline (demo)</string>
-    <string name="simulate_offline_hint">Päällä = offline-demo, pois = online-demo.</string>
+    <string name="simulate_offline_hint">Päällä = offline-demo, pois = käyttää oikeaa verkkoyhteyttä.</string>
 
     <!-- List -->
     <string name="gig_list_title">Keikat</string>
