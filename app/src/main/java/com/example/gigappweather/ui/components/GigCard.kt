@@ -114,6 +114,11 @@ fun GigCard(
                             }
                         } else {
                             SectionBox {
+                                if (!isOnline) {
+                                    Text(text = stringResource(id = R.string.error_network), style = MaterialTheme.typography.bodyMedium)
+                                    Text(text = stringResource(id = R.string.offline_weather_cached), style = MaterialTheme.typography.bodyMedium)
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                }
                                 Text(text = stringResource(id = R.string.temp_min_value, weather.tempMinC))
                                 Text(text = stringResource(id = R.string.temp_max_value, weather.tempMaxC))
                                 Text(text = stringResource(id = R.string.precip_value, weather.precipitationSumMm))
