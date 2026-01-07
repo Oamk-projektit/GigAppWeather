@@ -91,6 +91,12 @@ fun GigListScreen(
         }
     }
 
+    LaunchedEffect(isOnline) {
+        if (isOnline) {
+            viewModel.retryAllWeather()
+        }
+    }
+
     Scaffold(
         topBar = {
             Column {

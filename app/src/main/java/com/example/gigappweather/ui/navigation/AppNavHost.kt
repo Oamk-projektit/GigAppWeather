@@ -31,7 +31,7 @@ fun AppNavHost(modifier: Modifier = Modifier) {
     val context = LocalContext.current.applicationContext
 
     val appViewModel: AppViewModel = viewModel(
-        factory = AppViewModelFactory(context),
+        factory = AppViewModelFactory(),
     )
 
     var listVmNonce by remember { mutableIntStateOf(0) }

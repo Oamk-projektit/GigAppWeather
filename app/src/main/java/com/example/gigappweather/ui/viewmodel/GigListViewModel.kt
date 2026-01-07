@@ -217,6 +217,15 @@ class GigListViewModel(
         }
     }
 
+    fun retryAllWeather() {
+        cityCache.clear()
+        inFlightCityIds.clear()
+        ensureWeatherFetched(latestGigs)
+        if (latestGigs.isNotEmpty() && _state.value is UiState.Success) {
+            _state.value = UiState.Success(mapToUi(latestGigs))
+        }
+    }
+
     suspend fun deleteGig(id: Long) {
         try {
             gigRepository.deleteById(id)
