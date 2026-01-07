@@ -15,11 +15,17 @@ class ConnectivityObserver(context: Context) {
     private val cm = appContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
     private fun isOnlineNow(): Boolean {
-        val network = cm.activeNetwork ?: return false
-        val caps = cm.getNetworkCapabilities(network) ?: return false
-        // NOTE: Some emulators/devices don't reliably report VALIDATED even when browsing works.
-        // For the purposes of a visible online/offline indicator, treat INTERNET capability as online.
-        return caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        // Prefer being tolerant here: some emulators/devices can have multiple networks where
+        // `activeNetwork` is not the one that actually provides internet.
+        return cm.allNetworks
+            .asSequence()
+            .mapNotNull { network -> cm.getNetworkCapabilities(network) }
+            .any { caps ->
+                caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+                    (caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+                        caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
+                        caps.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET))
+            }
     }
 
     fun isOnlineFlow(): Flow<Boolean> = callbackFlow {
@@ -35,7 +41,13 @@ class ConnectivityObserver(context: Context) {
 
         emitNow()
 
-        cm.registerNetworkCallback(NetworkRequest.Builder().build(), callback)
+        // Listen for any network that could provide internet.
+        cm.registerNetworkCallback(
+            NetworkRequest.Builder()
+                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                .build(),
+            callback,
+        )
         awaitClose { cm.unregisterNetworkCallback(callback) }
     }.distinctUntilChanged()
 }
