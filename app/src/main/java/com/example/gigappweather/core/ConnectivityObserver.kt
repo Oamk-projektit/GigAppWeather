@@ -17,9 +17,9 @@ class ConnectivityObserver(context: Context) {
     private fun isOnlineNow(): Boolean {
         val network = cm.activeNetwork ?: return false
         val caps = cm.getNetworkCapabilities(network) ?: return false
-        val hasInternet = caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-        val validated = caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
-        return hasInternet && validated
+        // NOTE: Some emulators/devices don't reliably report VALIDATED even when browsing works.
+        // For the purposes of a visible online/offline indicator, treat INTERNET capability as online.
+        return caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
 
     fun isOnlineFlow(): Flow<Boolean> = callbackFlow {
